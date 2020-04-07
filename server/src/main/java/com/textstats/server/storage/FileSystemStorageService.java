@@ -6,7 +6,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
@@ -58,5 +60,17 @@ public class FileSystemStorageService implements StorageService {
             throw new StorageException("Failed to store file " + fileName, ie);
         }
 
+    }
+
+    @Override
+    public List<Path> fetchUploadedFiles() {
+        try{
+            return Files.list(rootLocation)
+                .filter(Files::isRegularFile)
+                .collect(Collectors.toList());
+        }
+        catch(IOException ie){
+            throw new StorageException("Failed to fetch file from " + rootLocation);
+        }
     }
 }
