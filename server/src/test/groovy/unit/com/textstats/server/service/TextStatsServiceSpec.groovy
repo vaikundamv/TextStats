@@ -20,14 +20,17 @@ class TextStatsServiceSpec extends Specification{
     }
 
 
-    def "GetWordCount API returns the correct count"() {
+    def " Text Stats Service returns the correct statistics"() {
         given: "a sample text file"
         File file = new File(this.getClass().classLoader.getResource("Sample.txt").toURI());
         Path path = Path.of(file.toURI())
         when: "text stats getWordCountStats API is involed"
-        TextStats stats = textStatsService.getWordCountStats(path)
+        TextStats stats = textStatsService.getStats(path,1)
         then: "correct word count is returned"
         stats != null
-        stats.wordCount == 25
+        stats.wordCount == 27
+        stats.frequentlyUsedWords != null
+        stats.frequentlyUsedWords.get(0).equals("sample")
+
     }
 }

@@ -5,7 +5,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,10 +17,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class TextStatsServiceImpl implements TextStatsService {
 
+
     @Override
-    public TextStats getWordCountStats(Path path) {
+    public TextStats getStats(Path path, Integer limit) {
         Map<String,Long> wordCountMap = getWordCountMap(path);
-        return new TextStats(getCount(wordCountMap));
+        return new TextStats(getCount(wordCountMap), getMostFrequent(wordCountMap,limit));
     }
 
     /**
@@ -51,4 +55,19 @@ public class TextStatsServiceImpl implements TextStatsService {
                         .mapToInt(Long::intValue)
                         .sum();
     }
+
+    /**
+     * returns the most frequently used values
+     * @param inputMap
+     * @param limitValue to limit the number of n most recently used words
+     * @return the n most recently used values
+     */
+    private static List<String> getMostFrequent(Map<String, Long> inputMap, int limitValue) {
+        return inputMap.entrySet().stream()
+            .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+            .limit(limitValue)
+            .map(Entry::getKey)
+            .collect(Collectors.toList());
+    }
+
 }

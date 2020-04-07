@@ -5,6 +5,7 @@ import com.textstats.server.service.TextStatsService;
 import com.textstats.server.storage.StorageService;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,15 +41,16 @@ public class TextStatsController {
 
 
     /**
-     * API to get statistics of the uploaded file
-     * @return text stats
+     * API to get text statistics like wordcount, frequently used words etc...
+     * @param limit - frequency limit to return n most recently used statistics
+     * @return
      */
     @GetMapping("/stats")
-    public TextStats getStats() {
+    public TextStats getStats(@RequestParam Optional<Integer> limit) {
         List<Path> paths = storageService.fetchUploadedFiles();
         assert paths.size() > 0;
         Path path = paths.get(0);
-        return textStatsService.getWordCountStats(path);
+        return textStatsService.getStats(path, limit.orElse(3));
     }
 
 }

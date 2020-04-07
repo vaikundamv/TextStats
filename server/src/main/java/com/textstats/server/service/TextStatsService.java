@@ -4,5 +4,5 @@ import com.textstats.server.model.TextStats;
 import java.nio.file.Path;
 
 public interface TextStatsService {
-    public TextStats getWordCountStats(Path path);
+    public TextStats getStats(Path path, Integer limit);
 }
