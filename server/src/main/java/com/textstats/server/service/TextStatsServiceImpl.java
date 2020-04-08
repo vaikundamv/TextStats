@@ -20,8 +20,22 @@ public class TextStatsServiceImpl implements TextStatsService {
 
     @Override
     public TextStats getStats(Path path, Integer limit) {
+        // word statistics
         Map<String,Long> wordCountMap = getWordCountMap(path);
-        return new TextStats(getCount(wordCountMap), getMostFrequent(wordCountMap,limit));
+        Integer wordCount = getCount(wordCountMap);
+        List<String> mostFrequentWords = getMostFrequent(wordCountMap,limit);
+
+        // characters or letters statistics
+        Map<String,Long> characterCountMap = getCharacterCountMap(path);
+        Integer characterCount = getCount(characterCountMap);
+        List<String> mostFrequentCharacters = getMostFrequent(characterCountMap,limit);
+
+        // symbols statistics
+        Map<String,Long> symbolsCountMap = getSymbolCountMap(path);
+        Integer symbolcount = getCount(symbolsCountMap);
+        List<String> mostFrequentlyUsedSymbols  = getMostFrequent(symbolsCountMap,limit);
+
+        return new TextStats(wordCount,characterCount,symbolcount, mostFrequentWords, mostFrequentCharacters, mostFrequentlyUsedSymbols);
     }
 
     /**
@@ -68,6 +82,46 @@ public class TextStatsServiceImpl implements TextStatsService {
             .limit(limitValue)
             .map(Entry::getKey)
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Method to get a map of characters and their count for the given file
+     * @param path
+     * @return
+     */
+    private Map<String,Long> getCharacterCountMap(Path path)  {
+        try {
+            return Files.lines(path)
+                .flatMap(line -> Arrays.stream(line.split(" ")))
+                .flatMap(s -> s.chars().mapToObj(c -> (char) c))
+                .map(Object::toString)
+                .collect(
+                    Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        }
+        catch(IOException ioe){
+            throw new TextStatsException("Unable to process file " + path.getFileName().toString());
+        }
+    }
+
+    /**
+     * Method to get a map of symbols and their count for the given file
+     * @param path
+     * @return
+     */
+    private Map<String,Long> getSymbolCountMap(Path path)  {
+        try {
+            return Files.lines(path)
+                .flatMap(line -> Arrays.stream(line.split(" ")))
+                .map(s -> s.replaceAll("[a-zA-Z0-9]+" , ""))
+                .filter(s -> !s.equals(""))
+                .flatMap(s -> s.chars().mapToObj(c -> (char) c))
+                .map(Object::toString)
+                .collect(
+                    Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        }
+        catch(IOException ioe){
+            throw new TextStatsException("Unable to process file " + path.getFileName().toString());
+        }
     }
 
 }

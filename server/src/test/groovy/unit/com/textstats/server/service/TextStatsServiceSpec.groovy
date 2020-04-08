@@ -25,12 +25,18 @@ class TextStatsServiceSpec extends Specification{
         File file = new File(this.getClass().classLoader.getResource("Sample.txt").toURI());
         Path path = Path.of(file.toURI())
         when: "text stats getWordCountStats API is involed"
-        TextStats stats = textStatsService.getStats(path,1)
-        then: "correct word count is returned"
+        TextStats stats = textStatsService.getStats(path,3)
+        then: "correct stats are returned"
         stats != null
-        stats.wordCount == 27
+        // validate word count stats
+        stats.wordCount > 20
         stats.frequentlyUsedWords != null
-        stats.frequentlyUsedWords.get(0).equals("sample")
+        stats.frequentlyUsedWords.contains("sample")
 
+        stats.characterCount > 50
+        stats.frequentlyUsedCharacters.contains("s")
+
+        stats.symbolCount > 0
+        stats.frequentlyUsedSymbols.contains("!")
     }
 }
