@@ -4,7 +4,9 @@ import com.textstats.server.model.TextStats;
 import com.textstats.server.service.TextStatsService;
 import com.textstats.server.storage.StorageService;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.w3c.dom.Text;
 
 @RestController
 @RequestMapping("/api")
@@ -46,11 +49,16 @@ public class TextStatsController {
      * @return
      */
     @GetMapping("/stats")
-    public TextStats getStats(@RequestParam Optional<Integer> limit) {
+    public Map<String,TextStats> getStats(@RequestParam Optional<Integer> limit) {
         List<Path> paths = storageService.fetchUploadedFiles();
         assert paths.size() > 0;
-        Path path = paths.get(0);
-        return textStatsService.getStats(path, limit.orElse(3));
+
+        Map<String, TextStats> fileStatsMap = new HashMap<>();
+        for(Path path: paths) {
+            TextStats stats = textStatsService.getStats(path,limit.orElse(3));
+            fileStatsMap.put(path.getFileName().toString(),stats);
+        }
+        return fileStatsMap;
     }
 
 }
