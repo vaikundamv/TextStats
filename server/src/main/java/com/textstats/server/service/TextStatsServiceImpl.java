@@ -49,6 +49,8 @@ public class TextStatsServiceImpl implements TextStatsService {
             Stream<String> data = Files.lines(path);
             return data
                 .flatMap(line -> Arrays.stream(line.split(" ")))
+                .filter(s -> !s.equals(""))
+                .map(String::trim)
                 .map(String::toLowerCase)
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
@@ -95,6 +97,7 @@ public class TextStatsServiceImpl implements TextStatsService {
                 .flatMap(line -> Arrays.stream(line.split(" ")))
                 .flatMap(s -> s.chars().mapToObj(c -> (char) c))
                 .map(Object::toString)
+                .map(String::trim)
                 .collect(
                     Collectors.groupingBy(Function.identity(), Collectors.counting()));
         }
@@ -113,6 +116,7 @@ public class TextStatsServiceImpl implements TextStatsService {
             return Files.lines(path)
                 .flatMap(line -> Arrays.stream(line.split(" ")))
                 .map(s -> s.replaceAll("[a-zA-Z0-9]+" , ""))
+                .map(String::trim)
                 .filter(s -> !s.equals(""))
                 .flatMap(s -> s.chars().mapToObj(c -> (char) c))
                 .map(Object::toString)
